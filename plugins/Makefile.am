@@ -10,6 +10,7 @@ SUBDIRS = \
 	contributing \
 	create-project \
 	ctags \
+	debugger \
 	devhelp \
 	file-search \
 	flatpak \

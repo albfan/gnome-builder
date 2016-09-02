@@ -287,6 +287,7 @@ m4_include([plugins/comment-code/configure.ac])
 m4_include([plugins/contributing/configure.ac])
 m4_include([plugins/create-project/configure.ac])
 m4_include([plugins/ctags/configure.ac])
+m4_include([plugins/debugger/configure.ac])
 m4_include([plugins/devhelp/configure.ac])
 m4_include([plugins/file-search/configure.ac])
 m4_include([plugins/flatpak/configure.ac])
@@ -576,6 +577,7 @@ echo "  Command Bar .......................... : ${enable_command_bar_plugin}"
 echo "  Comment Code.......................... : ${enable_comment_code_plugin}"
 echo "  Contribute ........................... : ${enable_contributing_plugin}"
 echo "  Ctags ................................ : ${enable_ctags_plugin}"
+echo "  Debugger ............................. : ${enable_debugger_plugin}"
 echo "  Devhelp .............................. : ${enable_devhelp_plugin}"
 echo "  Editorconfig ......................... : ${enable_editorconfig}"
 echo "  Fpaste.org ........................... : ${enable_fpaste_plugin}"

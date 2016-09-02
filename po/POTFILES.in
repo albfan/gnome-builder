@@ -133,6 +133,10 @@ plugins/create-project/gbp-create-project-genesis-addin.c
 plugins/create-project/gbp-create-project-tool.c
 plugins/create-project/gbp-create-project-widget.c
 plugins/create-project/gbp-create-project-widget.ui
+plugins/debugger/gbp-debugger-perspective.c
+plugins/debugger/gbp-debugger-perspective.ui
+plugins/debugger/gbp-debugger-service.c
+plugins/debugger/gbp-debugger-workbench-addin.c
 plugins/devhelp/gbp-devhelp-panel.c
 plugins/file-search/gb-file-search-provider.c
 plugins/fpaste/fpaste_plugin/gtk/menus.ui
