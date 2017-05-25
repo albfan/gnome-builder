@@ -22,6 +22,7 @@
 #include <gtksourceview/gtksource.h>
 
 #include "workbench/ide-layout-view.h"
+#include "sourceview/ide-source-view.h"
 
 G_BEGIN_DECLS
 
@@ -30,9 +31,10 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE (IdeDebuggerView, ide_debugger_view, IDE, DEBUGGER_VIEW, IdeLayoutView)
 
 GtkWidget       *ide_debugger_view_new        (void);
-GtkSourceBuffer *ide_debugger_view_get_buffer (IdeDebuggerView *self);
+IdeBuffer       *ide_debugger_view_get_buffer (IdeDebuggerView *self);
 void             ide_debugger_view_set_buffer (IdeDebuggerView *self,
-                                               GtkSourceBuffer *buffer);
+                                               IdeBuffer       *buffer);
+IdeSourceView   *ide_debugger_view_get_view   (IdeDebuggerView *self);
 
 G_END_DECLS
 

@@ -23,7 +23,6 @@
 #include "debugger/ide-debugger-breakpoints.h"
 #include "debugger/ide-debugger-gutter-renderer.h"
 #include "debugger/ide-debugger-view.h"
-#include "sourceview/ide-source-view.h"
 
 struct _IdeDebuggerView
 {
@@ -37,6 +36,7 @@ struct _IdeDebuggerView
 enum {
   PROP_0,
   PROP_BUFFER,
+  PROP_VIEW,
   N_PROPS
 };
 
@@ -71,6 +71,9 @@ ide_debugger_view_get_property (GObject    *object,
     {
     case PROP_BUFFER:
       g_value_set_object (value, ide_debugger_view_get_buffer (self));
+      break;
+    case PROP_VIEW:
+      g_value_set_object (value, ide_debugger_view_get_view (self));
       break;
 
     default:
@@ -144,6 +147,22 @@ ide_debugger_view_new (void)
 }
 
 /**
+ * ide_debugger_view_get_view:
+ * @self: a #IdeDebuggerView
+ *
+ * Gets the source view for the view.
+ *
+ * Returns: (transfer none): A #IdeSourceView
+ */
+IdeSourceView *
+ide_debugger_view_get_view (IdeDebuggerView *self)
+{
+  g_return_val_if_fail (IDE_IS_DEBUGGER_VIEW (self), NULL);
+
+  return self->source_view;
+}
+
+/**
  * ide_debugger_view_get_buffer:
  * @self: a #IdeDebuggerView
  *
@@ -151,17 +170,17 @@ ide_debugger_view_new (void)
  *
  * Returns: (transfer none): A #GtkSourceBuffer
  */
-GtkSourceBuffer *
+IdeBuffer *
 ide_debugger_view_get_buffer (IdeDebuggerView *self)
 {
   g_return_val_if_fail (IDE_IS_DEBUGGER_VIEW (self), NULL);
 
-  return GTK_SOURCE_BUFFER (gtk_text_view_get_buffer (GTK_TEXT_VIEW (self->source_view)));
+  return IDE_BUFFER (gtk_text_view_get_buffer (GTK_TEXT_VIEW (self->source_view)));
 }
 
 void
 ide_debugger_view_set_buffer (IdeDebuggerView *self,
-                              GtkSourceBuffer *buffer)
+                              IdeBuffer       *buffer)
 {
   g_return_if_fail (IDE_IS_DEBUGGER_VIEW (self));
   g_return_if_fail (GTK_SOURCE_IS_BUFFER (buffer));

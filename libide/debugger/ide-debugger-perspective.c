@@ -24,25 +24,31 @@
 #include "ide-debug.h"
 
 #include "buffers/ide-buffer.h"
+#include "files/ide-file.h"
 #include "debugger/ide-debugger.h"
 #include "debugger/ide-debugger-perspective.h"
 #include "debugger/ide-debugger-view.h"
 #include "util/ide-pango.h"
 #include "workbench/ide-layout-grid.h"
 #include "workbench/ide-perspective.h"
+#include <gdk/gdk.h>
+#include "ide-internal.h"
+
+#define IDE_DEBUGGER_STOPPED_LINE_TAG_NAME "ide-debugger-stopped-line-tag-name"
 
 struct _IdeDebuggerPerspective
 {
   PnlDockBin      parent_instance;
 
-  IdeDebugger    *debugger;
-  EggSignalGroup *debugger_signals;
-  GSettings      *terminal_settings;
-  GtkCssProvider *log_css;
+  IdeDebugger     *debugger;
+  EggSignalGroup  *debugger_signals;
+  GSettings       *terminal_settings;
+  GtkCssProvider  *log_css;
 
-  GtkTextBuffer  *log_buffer;
-  GtkTextView    *log_text_view;
-  IdeLayoutGrid  *layout_grid;
+  GtkTextBuffer   *log_buffer;
+  GtkTextView     *log_text_view;
+  IdeLayoutGrid   *layout_grid;
+  IdeDebuggerView *view;
 };
 
 enum {
@@ -50,6 +56,11 @@ enum {
   PROP_DEBUGGER,
   N_PROPS
 };
+
+typedef struct {
+   IdeBreakpoint          *breakpoint;
+   IdeDebuggerPerspective *perspective;
+} IdeDebuggerInfo;
 
 static gchar *
 ide_debugger_perspective_get_title (IdePerspective *perspective)
@@ -287,23 +298,44 @@ ide_debugger_perspective_init (IdeDebuggerPerspective *self)
   log_panel_changed_font_name (self, "font-name", self->terminal_settings);
 }
 
+static gboolean
+mark_done (gpointer data)
+{
+  gboolean *done = data;
+  *done = TRUE;
+  return G_SOURCE_REMOVE;
+}
+
 static void
 ide_debugger_perspective_load_source_cb (GObject      *object,
                                          GAsyncResult *result,
                                          gpointer      user_data)
 {
   IdeDebugger *debugger = (IdeDebugger *)object;
-  g_autoptr(IdeDebuggerPerspective) self = user_data;
+  IdeDebuggerInfo *ide_debugger_info = user_data;
+  g_autoptr(IdeDebuggerPerspective) self = ide_debugger_info->perspective;
+  g_autoptr(IdeBreakpoint) breakpoint = ide_debugger_info->breakpoint;
   g_autoptr(IdeBuffer) buffer = NULL;
   g_autoptr(GError) error = NULL;
-  IdeLayoutView *view;
   GtkWidget *stack;
+  GtkTextIter iter_bkp;
+  GtkTextIter iter_bkp_end;
+  GtkTextIter iter_start;
+  GtkTextIter iter_end;
+  guint line;
+  guint line_offset;
+  GdkRGBA stopped_line_rgba;
+  GtkSourceFile *source_file;
+  gboolean done;
 
   IDE_ENTRY;
 
   g_assert (IDE_IS_DEBUGGER (debugger));
   g_assert (G_IS_ASYNC_RESULT (result));
   g_assert (IDE_IS_DEBUGGER_PERSPECTIVE (self));
+
+  line = ide_breakpoint_get_line (breakpoint);
+  line_offset = ide_breakpoint_get_line_offset (breakpoint);
 
   buffer = ide_debugger_load_source_finish (debugger, result, &error);
 
@@ -313,13 +345,53 @@ ide_debugger_perspective_load_source_cb (GObject      *object,
       IDE_GOTO (failure);
     }
 
-  view = g_object_new (IDE_TYPE_DEBUGGER_VIEW,
-                       "buffer", buffer,
-                       "visible", TRUE,
-                       NULL);
+  gdk_rgba_parse(&stopped_line_rgba, "rgba(235,202,210,.4)");
+  gtk_text_buffer_create_tag (GTK_TEXT_BUFFER (buffer),
+                              IDE_DEBUGGER_STOPPED_LINE_TAG_NAME,
+                              "background-rgba", &stopped_line_rgba,
+                              NULL);
+
+  self->view = g_object_new (IDE_TYPE_DEBUGGER_VIEW,
+                             "buffer", buffer,
+                             "visible", TRUE,
+                             NULL);
 
   stack = ide_layout_grid_get_last_focus (self->layout_grid);
-  gtk_container_add (GTK_CONTAINER (stack), GTK_WIDGET (view));
+  gtk_container_add (GTK_CONTAINER (stack), GTK_WIDGET (self->view));
+
+  done = FALSE;
+
+  /*
+   * timeout value of 100 was found experimentally.  this is utter crap, but I
+   * don't have a clear event to key off with signals. we are sort of just
+   * waiting for the textview to complete processing events.
+   */
+
+  g_timeout_add (100, mark_done, &done);
+
+  for (;;)
+    {
+      gtk_main_iteration_do (TRUE);
+      if (done)
+        break;
+    }
+
+  gtk_text_buffer_get_start_iter (GTK_TEXT_BUFFER (buffer), &iter_start);
+  gtk_text_buffer_get_end_iter (GTK_TEXT_BUFFER (buffer), &iter_end);
+
+  gtk_text_buffer_get_iter_at_line_offset (GTK_TEXT_BUFFER (buffer),
+                                           &iter_bkp,
+                                           line - 1,
+                                           line_offset);
+  gtk_text_buffer_get_iter_at_line_offset (GTK_TEXT_BUFFER (buffer),
+                                           &iter_bkp_end,
+                                           line - 1,
+                                           line_offset);
+  gtk_text_iter_forward_to_line_end (&iter_bkp_end);
+  IDE_TRACE_MSG ("breakpoint navigate %d:%d", line, line_offset);
+  gtk_text_view_scroll_to_iter (GTK_TEXT_VIEW (ide_debugger_view_get_view(self->view)), &iter_bkp, 0.1, TRUE, 0.5, 0.0);
+  gtk_text_buffer_remove_tag_by_name (GTK_TEXT_BUFFER (buffer), IDE_DEBUGGER_STOPPED_LINE_TAG_NAME, &iter_start, &iter_end) ;
+  gtk_text_buffer_apply_tag_by_name (GTK_TEXT_BUFFER (buffer), IDE_DEBUGGER_STOPPED_LINE_TAG_NAME, &iter_bkp, &iter_bkp_end);
 
 failure:
   IDE_EXIT;
@@ -329,6 +401,20 @@ void
 ide_debugger_perspective_navigate_to_breakpoint (IdeDebuggerPerspective *self,
                                                  IdeBreakpoint          *breakpoint)
 {
+  IdeDebuggerInfo *debuggerInfo;
+  IdeBuffer *buffer;
+  GtkTextIter iter_start;
+  GtkTextIter iter_end;
+  GtkTextIter iter_bkp;
+  GtkTextIter iter_bkp_end;
+  guint line;
+  guint line_offset;
+  gboolean load_buffer;
+  IdeFile *orig_file;
+  GtkSourceFile *source_file;
+  GFile *file;
+  GFile *file_bkp;
+
   IDE_ENTRY;
 
   g_return_if_fail (IDE_IS_DEBUGGER_PERSPECTIVE (self));
@@ -352,11 +438,78 @@ ide_debugger_perspective_navigate_to_breakpoint (IdeDebuggerPerspective *self,
    * longer in sync with the debugged executable.
    */
 
-  ide_debugger_load_source_async (self->debugger,
-                                  breakpoint,
-                                  NULL,
-                                  ide_debugger_perspective_load_source_cb,
-                                  g_object_ref (self));
+  load_buffer = (self->view == NULL);
+  if (!load_buffer)
+    {
+      buffer = ide_debugger_view_get_buffer (self->view);
+      if (NULL != (orig_file = ide_buffer_get_file (buffer)))
+        {
+          file = ide_file_get_file(orig_file);
+          file_bkp = ide_breakpoint_get_file (breakpoint);
+          if (!g_file_equal(file, file_bkp))
+            {
+              /* files are different */
+              load_buffer = TRUE;
+            }
+          else
+            {
+              if (NULL != (source_file = _ide_file_get_source_file (orig_file)))
+                {
+                  if (gtk_source_file_is_local (source_file))
+                    {
+                      gtk_source_file_check_file_on_disk (source_file);
+                      if (gtk_source_file_is_externally_modified (source_file))
+                        {
+                          /* file changed on disk */
+                          load_buffer = TRUE;
+                        }
+                    }
+                }
+              else
+                {
+                  load_buffer = TRUE;
+                }
+            }
+        }
+      else
+        {
+          load_buffer = TRUE;
+        }
+    }
+
+  if (load_buffer)
+    {
+      debuggerInfo = g_slice_new0 (IdeDebuggerInfo);
+      debuggerInfo->breakpoint = g_object_ref (breakpoint);
+      debuggerInfo->perspective = g_object_ref (self);
+
+      ide_debugger_load_source_async (self->debugger,
+                                      breakpoint,
+                                      NULL,
+                                      ide_debugger_perspective_load_source_cb,
+                                      debuggerInfo);
+    }
+  else
+    {
+      line = ide_breakpoint_get_line (breakpoint);
+      line_offset = ide_breakpoint_get_line_offset (breakpoint);
+      buffer = ide_debugger_view_get_buffer (self->view);
+      gtk_text_buffer_get_start_iter (GTK_TEXT_BUFFER (buffer), &iter_start);
+      gtk_text_buffer_get_end_iter (GTK_TEXT_BUFFER (buffer), &iter_end);
+      gtk_text_buffer_get_iter_at_line_offset (GTK_TEXT_BUFFER (buffer),
+                                               &iter_bkp,
+                                               line - 1,
+                                               line_offset);
+      gtk_text_buffer_get_iter_at_line_offset (GTK_TEXT_BUFFER (buffer),
+                                               &iter_bkp_end,
+                                               line - 1,
+                                               line_offset);
+      gtk_text_iter_forward_to_line_end(&iter_bkp_end);
+      IDE_TRACE_MSG ("breakpoint navigate: %d:%d", line, line_offset);
+      gtk_text_view_scroll_to_iter (GTK_TEXT_VIEW (ide_debugger_view_get_view(self->view)), &iter_bkp, 0.1, TRUE, 0.5, 0.0);
+      gtk_text_buffer_remove_tag_by_name (GTK_TEXT_BUFFER (buffer), IDE_DEBUGGER_STOPPED_LINE_TAG_NAME, &iter_start, &iter_end) ;
+      gtk_text_buffer_apply_tag_by_name (GTK_TEXT_BUFFER (buffer), IDE_DEBUGGER_STOPPED_LINE_TAG_NAME, &iter_bkp, &iter_bkp_end);
+    }
 
   IDE_EXIT;
 }
