@@ -581,6 +581,18 @@
             ]
         },
         {
+            "name": "gdb",
+            "no-autogen": true,
+            "config-opts": [ "--prefix=/app", "--with-system-readline", "--with-python" ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://ftp.gnu.org/gnu/gdb/gdb-7.11.tar.gz",
+                    "sha256": "9382f5534aa0754169e1e09b5f1a3b77d1fa8c59c1e57617e06af37cb29c669a"
+                }
+            ]
+        },
+        {
             "name": "gnome-builder",
             "config-opts": [ "--enable-tracing", "--enable-debug", "--with-channel=flatpak-nightly" ],
             "sources": [
