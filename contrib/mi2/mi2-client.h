@@ -129,6 +129,14 @@ void           mi2_client_run_async                       (Mi2Client            
                                                            GCancellable         *cancellable,
                                                            GAsyncReadyCallback   callback,
                                                            gpointer              user_data);
+void           mi2_client_get_locals_async                (Mi2Client            *self,
+                                                           GCancellable         *cancellable,
+                                                           GAsyncReadyCallback   callback,
+                                                           gpointer              user_data);
+void           mi2_client_get_frames_async                (Mi2Client            *self,
+                                                           GCancellable         *cancellable,
+                                                           GAsyncReadyCallback   callback,
+                                                           gpointer              user_data);
 gboolean       mi2_client_run_finish                      (Mi2Client            *self,
                                                            GAsyncResult         *result,
                                                            GError              **error);

@@ -283,7 +283,7 @@ ide_debugger_supports_runner (IdeDebugger *self,
 
   ret = IDE_DEBUGGER_GET_IFACE (self)->supports_runner (self, runner, priority);
 
-  IDE_TRACE_MSG ("Chceking if %s supports runner %s",
+  IDE_TRACE_MSG ("Checking if %s supports runner %s",
                  G_OBJECT_TYPE_NAME (self),
                  G_OBJECT_TYPE_NAME (runner));
 

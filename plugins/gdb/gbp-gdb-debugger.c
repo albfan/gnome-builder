@@ -268,6 +268,8 @@ gbp_gdb_debugger_on_runner_spawned (GbpGdbDebugger *self,
 
   /* Now ask gdb to start running the program */
   mi2_client_run_async (self->client, NULL, NULL, NULL);
+  //mi2_client_get_locals_async (self->client, NULL, NULL, NULL);
+  mi2_client_get_frames_async (self->client, NULL, NULL, NULL);
 
   IDE_EXIT;
 }

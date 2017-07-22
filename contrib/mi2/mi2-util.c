@@ -236,8 +236,54 @@ mi2_util_parse_list (const gchar  *line,
               g_variant_builder_close (&builder);
             }
           else
-            goto failure;
+            {
+              GVariantDict dict;
+              g_variant_dict_init (&dict, NULL);
+              g_return_val_if_fail (line != NULL, NULL);
 
+              g_autofree gchar *key = NULL;
+              key = mi2_util_parse_word (line, &line);
+              if (key != NULL)
+                {
+                if (*line == '=')
+                  {
+                    line++;
+
+                    if (*line == '"')
+                      {
+                        g_autofree gchar *value = NULL;
+
+                        value = mi2_util_parse_string (line, &line);
+                        g_variant_dict_insert (&dict, key, "s", value);
+                      }
+                    else if (*line == '{')
+                      {
+                        g_autoptr(GVariant) variant = NULL;
+
+                        variant = mi2_util_parse_record (line, &line);
+                        g_variant_dict_insert_value (&dict, key, variant);
+                      }
+                    else if (*line == '[')
+                      {
+                        g_autoptr(GVariant) variant = NULL;
+
+                        variant = mi2_util_parse_list (line, &line);
+                        g_variant_dict_insert_value (&dict, key, variant);
+                      }
+
+                    //g_autoptr(GVariant) v = NULL;
+                    GVariant *v = NULL;
+                    v = g_variant_ref_sink (g_variant_dict_end (&dict));
+                    g_variant_builder_open (&builder, G_VARIANT_TYPE ("v"));
+                    g_variant_builder_add_value (&builder, v);
+                    g_variant_builder_close (&builder);
+                   }
+                }
+              else
+                {
+                  goto failure;
+                }
+             }
 
           if (*line == ',')
             line++;

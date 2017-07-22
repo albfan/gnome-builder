@@ -22,6 +22,14 @@
 
 #include "mi2-input-stream.h"
 
+#if TRUE
+# define _TRACE_OUTPUT_LEVEL (1<<G_LOG_LEVEL_USER_SHIFT)
+# define _TRACE_OUTPUT(...) do { g_log(G_LOG_DOMAIN, _TRACE_OUTPUT_LEVEL, __VA_ARGS__); } while (0)
+# define TRACE_OUTPUT_MSG(m,...) _TRACE_OUTPUT("MI2 OUTPUT: "m, __VA_ARGS__)
+#else
+# define TRACE_OUTPUT_MSG(m,...) do { } while (0)
+#endif
+
 G_DEFINE_TYPE (Mi2InputStream, mi2_input_stream, G_TYPE_DATA_INPUT_STREAM)
 
 static void
@@ -60,6 +68,7 @@ mi2_input_stream_read_message_read_line_cb (GObject      *object,
 
   line = g_data_input_stream_read_line_finish_utf8 (G_DATA_INPUT_STREAM (self), result, &len, &error);
 
+  TRACE_OUTPUT_MSG ("%s", line);
   /* Nothing to read, return NULL message */
   if (line == NULL && error == NULL)
     {

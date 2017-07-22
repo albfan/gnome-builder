@@ -18,6 +18,14 @@
 
 #define G_LOG_DOMAIN "mi2-client"
 
+#if 1
+# define _TRACE_INPUT_LEVEL (1<<G_LOG_LEVEL_USER_SHIFT)
+# define _TRACE_INPUT(...) do { g_log(G_LOG_DOMAIN, _TRACE_INPUT_LEVEL, __VA_ARGS__); } while (0)
+# define TRACE_INPUT_MSG(m,...) _TRACE_INPUT("MI2 INPUT: "m, __VA_ARGS__)
+#else
+# define TRACE_INPUT_MSG(m,...) do { } while (0)
+#endif
+
 #include "mi2-client.h"
 #include "mi2-command-message.h"
 #include "mi2-console-message.h"
@@ -362,6 +370,8 @@ mi2_client_exec_async (Mi2Client           *self,
   g_autoptr(GTask) task = NULL;
   g_autoptr(GError) error = NULL;
 
+  TRACE_INPUT_MSG ("%s", command);
+
   g_return_if_fail (MI2_IS_CLIENT (self));
   g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
@@ -466,7 +476,7 @@ mi2_client_dispatch (Mi2Client  *self,
        * We do this here so that we don't have multiple requests on
        * the wire at one time, as gdb cannot handle that.
        */
-      if (NULL != (next_message = g_queue_pop_head (&priv->exec_commands)))
+      if (g_queue_is_empty (&priv->exec_commands) == 0 && NULL != (next_message = g_queue_pop_head (&priv->exec_commands)))
         {
           GCancellable *cancellable;
 
@@ -903,6 +913,51 @@ mi2_client_exec_cb (GObject      *object,
     g_task_return_boolean (task, TRUE);
 }
 
+static void
+mi2_client_locals_cb (GObject      *object,
+                    GAsyncResult *result,
+                    gpointer      user_data)
+{
+  Mi2Client *self = (Mi2Client *)object;
+  g_autoptr(GError) error = NULL;
+  g_autoptr(GTask) task = user_data;
+  g_autoptr(Mi2ReplyMessage) message = NULL;
+
+  g_assert (MI2_IS_CLIENT (self));
+  g_assert (G_IS_ASYNC_RESULT (result));
+
+  if (!mi2_client_exec_finish (self, result, &message, &error))
+    g_task_return_error (task, g_steal_pointer (&error));
+  else
+    {
+      GVariant* stack = mi2_message_get_param (MI2_MESSAGE (message), "stack");
+      gpointer pointer = g_task_get_task_data (task);
+      g_task_return_boolean (task, TRUE);
+    }
+}
+
+static void
+mi2_client_frames_cb (GObject      *object,
+                    GAsyncResult *result,
+                    gpointer      user_data)
+{
+  Mi2Client *self = (Mi2Client *)object;
+  g_autoptr(GError) error = NULL;
+  g_autoptr(GTask) task = user_data;
+  g_autoptr(Mi2ReplyMessage) message = NULL;
+
+  g_assert (MI2_IS_CLIENT (self));
+  g_assert (G_IS_ASYNC_RESULT (result));
+
+  if (!mi2_client_exec_finish (self, result, &message, &error))
+    g_task_return_error (task, g_steal_pointer (&error));
+  else
+    {
+      gpointer pointer = g_task_get_task_data (task);
+      g_task_return_boolean (task, TRUE);
+    }
+}
+
 /**
  * mi2_client_run_async:
  * @self: a #Mi2Client
@@ -954,6 +1009,70 @@ mi2_client_run_finish (Mi2Client     *self,
   g_return_val_if_fail (G_IS_TASK (result), FALSE);
 
   return g_task_propagate_boolean (G_TASK (result), error);
+}
+
+/**
+ * mi2_client_get_locals_async:
+ * @self: a #Mi2Client
+ * @cancellable: (nullable): an optional #GCancellable, or %NULL
+ * @callback: (scope async) (closure user_data): a callback to execute
+ * @user_data: user data for @callback
+ *
+ * Asynchronously get the locals from backtrace.
+ *
+ * Call mi2_client_get_locals_finish() from @callback to get the result.
+ */
+void
+mi2_client_get_locals_async (Mi2Client           *self,
+                           GCancellable        *cancellable,
+                           GAsyncReadyCallback  callback,
+                           gpointer             user_data)
+{
+  g_autoptr(GTask) task = NULL;
+
+  g_return_if_fail (MI2_IS_CLIENT (self));
+  g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+  task = g_task_new (self, cancellable, callback, user_data);
+  g_task_set_source_tag (task, mi2_client_get_locals_async);
+
+  mi2_client_exec_async (self,
+                         "-stack-list-locals 2",
+                         cancellable,
+                         mi2_client_locals_cb,
+                         g_steal_pointer (&task));
+}
+
+/**
+ * mi2_client_get_frames_async:
+ * @self: a #Mi2Client
+ * @cancellable: (nullable): an optional #GCancellable, or %NULL
+ * @callback: (scope async) (closure user_data): a callback to execute
+ * @user_data: user data for @callback
+ *
+ * Asynchronously get the frames from backtrace.
+ *
+ * Call mi2_client_get_frames_finish() from @callback to get the result.
+ */
+void
+mi2_client_get_frames_async (Mi2Client           *self,
+                           GCancellable        *cancellable,
+                           GAsyncReadyCallback  callback,
+                           gpointer             user_data)
+{
+  g_autoptr(GTask) task = NULL;
+
+  g_return_if_fail (MI2_IS_CLIENT (self));
+  g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+  task = g_task_new (self, cancellable, callback, user_data);
+  g_task_set_source_tag (task, mi2_client_get_frames_async);
+
+  mi2_client_exec_async (self,
+                         "-stack-list-frames",
+                         cancellable,
+                         mi2_client_frames_cb,
+                         g_steal_pointer (&task));
 }
 
 /**

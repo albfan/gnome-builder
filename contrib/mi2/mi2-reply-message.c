@@ -206,7 +206,7 @@ mi2_reply_message_check_error (Mi2ReplyMessage  *self,
       const gchar *msg = mi2_message_get_param_string (MI2_MESSAGE (self), "msg");
 
       if (msg == NULL || *msg == '\0')
-        msg = "An unknown error occrred";
+        msg = "An unknown error ocurred";
 
       g_set_error_literal (error,
                            MI2_ERROR,
