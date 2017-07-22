@@ -27,6 +27,7 @@ libide_enum_headers = [
   'buffers/ide-buffer.h',
   'buildsystem/ide-build-log.h',
   'buildsystem/ide-build-pipeline.h',
+  'debugger/ide-debugger.h',
   'devices/ide-device.h',
   'diagnostics/ide-diagnostic.h',
   'doap/ide-doap.h',
@@ -46,6 +47,12 @@ libide_enums = gnome.mkenums('ide-enums',
   sources: libide_enum_headers,
   install_header: true,
   install_dir: libide_header_dir,
+)
+
+debugger_resources = gnome.compile_resources('debugger-resources',
+  join_paths(meson.source_root(), 'libide/debugger/debugger.gresource.xml'),
+  source_dir: join_paths(meson.source_root(), 'libide/debugger'),
+  c_name: 'debugger',
 )
 
 libide_public_headers = [
@@ -85,6 +92,20 @@ libide_public_headers = [
   'buildsystem/ide-configuration-provider.h',
   'buildsystem/ide-environment-variable.h',
   'buildsystem/ide-environment.h',
+  'debugger/ide-breakpoint.h',
+  'debugger/ide-debug-manager.h',
+  'debugger/ide-debugger-breakpoints.h',
+  'debugger/ide-debugger-controls.h',
+  'debugger/ide-debugger-editor-view-addin.h',
+  'debugger/ide-debugger-frame.h',
+  'debugger/ide-debugger-gutter-renderer.h',
+  'debugger/ide-debugger-perspective.h',
+  'debugger/ide-debugger-stack.h',
+  'debugger/ide-debugger-thread.h',
+  'debugger/ide-debugger-variable.h',
+  'debugger/ide-debugger-view.h',
+  'debugger/ide-debugger-workbench-addin.h',
+  'debugger/ide-debugger.h',
   'devices/ide-device-manager.h',
   'devices/ide-device-provider.h',
   'devices/ide-device.h',
@@ -237,6 +258,7 @@ libide_debug_h = configure_file(
 
 # TODO: This is ugly and should be handled upstream
 foreach header: libide_public_headers
+  message(header)
   header_split = header.split('/')
   if header_split.length() == 2
     header_path = join_paths(libide_header_dir, header_split[0])
@@ -286,6 +308,21 @@ libide_public_sources = [
   'buildsystem/ide-configuration-provider.c',
   'buildsystem/ide-environment-variable.c',
   'buildsystem/ide-environment.c',
+  'debugger/ide-breakpoint.c',
+  'debugger/ide-debug-manager.c',
+  'debugger/ide-debugger-breakpoints.c',
+  'debugger/ide-debugger.c',
+  'debugger/ide-debugger-controls.c',
+  'debugger/ide-debugger-editor-view-addin.c',
+  'debugger/ide-debugger-frame.c',
+  'debugger/ide-debugger-gutter-renderer.c',
+  'debugger/ide-debugger-perspective.c',
+  'debugger/ide-debugger-plugin.c',
+  'debugger/ide-debugger-stack.c',
+  'debugger/ide-debugger-thread.c',
+  'debugger/ide-debugger-variable.c',
+  'debugger/ide-debugger-view.c',
+  'debugger/ide-debugger-workbench-addin.c',
   'devices/ide-device-manager.c',
   'devices/ide-device-provider.c',
   'devices/ide-device.c',
@@ -438,6 +475,7 @@ libide_generated_headers = [
   libide_build_ident_h,
   libide_resources[1],
   libide_icons_resources[1],
+  debugger_resources[1],
   libide_enums[1],
   libide_debug_h,
   libide_version_h,

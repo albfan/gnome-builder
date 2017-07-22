@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="IdeDebuggerPerspective" parent="DzlDockBin">
+    <child>
+      <object class="IdeLayoutGrid" id="layout_grid">
+        <property name="visible">true</property>
+      </object>
+    </child>
+
+    <child internal-child="left">
+      <object class="DzlDockBinEdge">
+        <property name="reveal-child">true</property>
+      </object>
+    </child>
+    <child type="left">
+      <object class="DzlDockStack">
+        <property name="visible">true</property>
+        <property name="vexpand">true</property>
+        <child>
+          <object class="DzlDockWidget">
+            <property name="title" translatable="yes">Threads</property>
+            <property name="expand">true</property>
+            <property name="visible">true</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="min-content-width">200</property>
+                <property name="propagate-natural-height">true</property>
+                <property name="visible">true</property>
+                <child>
+                  <object class="GtkTreeView">
+                    <property name="visible">true</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child type="left">
+      <object class="DzlDockStack">
+        <property name="visible">true</property>
+        <property name="vexpand">true</property>
+        <child>
+          <object class="DzlDockWidget">
+            <property name="title" translatable="yes">Stack</property>
+            <property name="expand">true</property>
+            <property name="visible">true</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="min-content-width">200</property>
+                <property name="propagate-natural-height">true</property>
+                <property name="visible">true</property>
+                <child>
+                  <object class="GtkTreeView">
+                    <property name="visible">true</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+
+    <child internal-child="right">
+      <object class="DzlDockBinEdge">
+        <property name="reveal-child">true</property>
+      </object>
+    </child>
+    <child type="right">
+      <object class="DzlDockStack">
+        <property name="visible">true</property>
+        <property name="vexpand">true</property>
+        <child>
+          <object class="DzlDockWidget">
+            <property name="title" translatable="yes">Variables</property>
+            <property name="expand">true</property>
+            <property name="visible">true</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="min-content-width">200</property>
+                <property name="propagate-natural-height">true</property>
+                <property name="visible">true</property>
+                <child>
+                  <object class="GtkTreeView">
+                    <property name="visible">true</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child type="right">
+      <object class="DzlDockStack">
+        <property name="visible">true</property>
+        <property name="vexpand">true</property>
+        <child>
+          <object class="DzlDockWidget">
+            <property name="title" translatable="yes">Registers</property>
+            <property name="expand">true</property>
+            <property name="visible">true</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="min-content-width">200</property>
+                <property name="propagate-natural-height">true</property>
+                <property name="visible">true</property>
+                <child>
+                  <object class="GtkTreeView">
+                    <property name="visible">true</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+
+    <child internal-child="bottom">
+      <object class="DzlDockBinEdge">
+        <property name="reveal-child">true</property>
+      </object>
+    </child>
+    <child type="bottom">
+      <object class="DzlDockStack">
+        <property name="hexpand">true</property>
+        <property name="visible">true</property>
+        <child>
+          <object class="DzlDockWidget">
+            <property name="title" translatable="yes">Application Output</property>
+            <property name="expand">true</property>
+            <property name="visible">true</property>
+          </object>
+        </child>
+        <child>
+          <object class="DzlDockWidget">
+            <property name="title" translatable="yes">Breakpoints</property>
+            <property name="expand">true</property>
+            <property name="visible">true</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="visible">true</property>
+                <child>
+                  <object class="GtkTreeView" id="breakpoints_tree_view">
+                    <property name="visible">true</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="DzlDockWidget">
+            <property name="title" translatable="yes">Log</property>
+            <property name="visible">true</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="visible">true</property>
+                <child>
+                  <object class="GtkTextView" id="log_text_view">
+                    <property name="buffer">log_buffer</property>
+                    <property name="editable">false</property>
+                    <property name="monospace">true</property>
+                    <property name="vexpand">true</property>
+                    <property name="visible">true</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+
+  <object class="GtkTextBuffer" id="log_buffer"/>
+
+</interface>

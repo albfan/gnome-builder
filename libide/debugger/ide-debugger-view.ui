@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interface>
+  <template class="IdeDebuggerView" parent="IdeLayoutView">
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="expand">true</property>
+        <property name="visible">true</property>
+        <child>
+          <object class="IdeSourceView" id="source_view">
+            <property name="highlight-current-line">true</property>
+            <property name="show-line-numbers">true</property>
+            <property name="monospace">true</property>
+            <property name="editable">false</property>
+            <property name="visible">true</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

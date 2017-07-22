@@ -358,6 +358,20 @@ ide_runner_real_get_stderr (IdeRunner *self)
   return NULL;
 }
 
+gint
+ide_runner_steal_tty (IdeRunner *self)
+{
+  IdeRunnerPrivate *priv = ide_runner_get_instance_private (self);
+  gint fd;
+
+  g_return_val_if_fail (IDE_IS_RUNNER (self), -1);
+
+  fd = priv->tty_fd;
+  priv->tty_fd = -1;
+
+  return fd;
+}
+
 static void
 ide_runner_real_set_tty (IdeRunner *self,
                          int        tty_fd)
@@ -382,6 +396,21 @@ ide_runner_real_set_tty (IdeRunner *self,
             g_warning ("Failed to dup() tty_fd: %s", g_strerror (errno));
         }
     }
+}
+
+static void
+ide_runner_real_force_quit (IdeRunner *self)
+{
+  IdeRunnerPrivate *priv = ide_runner_get_instance_private (self);
+
+  IDE_ENTRY;
+
+  g_assert (IDE_IS_RUNNER (self));
+
+  if (priv->subprocess != NULL)
+    ide_subprocess_force_exit (priv->subprocess);
+
+  IDE_EXIT;
 }
 
 static void
@@ -564,6 +593,7 @@ ide_runner_class_init (IdeRunnerClass *klass)
   klass->get_stdin = ide_runner_real_get_stdin;
   klass->get_stdout = ide_runner_real_get_stdout;
   klass->get_stderr = ide_runner_real_get_stderr;
+  klass->force_quit = ide_runner_real_force_quit;
 
   properties [PROP_ARGV] =
     g_param_spec_boxed ("argv",

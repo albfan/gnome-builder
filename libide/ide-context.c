@@ -35,6 +35,7 @@
 #include "buildsystem/ide-build-system.h"
 #include "buildsystem/ide-build-system-discovery.h"
 #include "buildsystem/ide-configuration-manager.h"
+#include "debugger/ide-debug-manager.h"
 #include "diagnostics/ide-diagnostics-manager.h"
 #include "devices/ide-device-manager.h"
 #include "doap/ide-doap.h"
@@ -69,6 +70,7 @@ struct _IdeContext
   IdeBuildSystem           *build_system;
   gchar                    *build_system_hint;
   IdeConfigurationManager  *configuration_manager;
+  IdeDebugManager          *debug_manager;
   IdeDiagnosticsManager    *diagnostics_manager;
   IdeDeviceManager         *device_manager;
   IdeDoap                  *doap;
@@ -2479,4 +2481,20 @@ ide_context_get_diagnostics_manager (IdeContext *self)
   g_return_val_if_fail (IDE_IS_CONTEXT (self), NULL);
 
   return self->diagnostics_manager;
+}
+
+/**
+ * ide_context_get_debug_manager:
+ * @self: An #IdeContext
+ *
+ * Gets the debug manager for the context.
+ *
+ * Returns: (transfer none): An #IdeDebugManager
+ */
+IdeDebugManager *
+ide_context_get_debug_manager (IdeContext *self)
+{
+  g_return_val_if_fail (IDE_IS_CONTEXT (self), NULL);
+
+  return self->debug_manager;
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/org/gnome/builder/ui">
+    <file>gtk/menus.ui</file>
+    <file>themes/shared.css</file>
+    <file>ide-debugger-perspective.ui</file>
+  </gresource>
+</gresources>

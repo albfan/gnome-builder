@@ -76,6 +76,9 @@
     <file compressed="true" preprocess="xml-stripblanks" alias="ide-workbench-header-bar.ui">workbench/ide-workbench-header-bar.ui</file>
     <file compressed="true" preprocess="xml-stripblanks" alias="ide-workbench.ui">workbench/ide-workbench.ui</file>
     <file compressed="true" preprocess="xml-stripblanks" alias="ide-workbench-message.ui">workbench/ide-workbench-message.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks" alias="ide-debugger-controls.ui">debugger/ide-debugger-controls.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks" alias="ide-debugger-perspective.ui">debugger/ide-debugger-perspective.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks" alias="ide-debugger-view.ui">debugger/ide-debugger-view.ui</file>
   </gresource>
 
   <gresource prefix="/org/gnome/builder/plugins/buildconfig">
@@ -103,4 +106,9 @@
     <file compressed="true" preprocess="xml-stripblanks" alias="ide-build-perspective.ui">buildui/ide-build-perspective.ui</file>
     <file compressed="true" preprocess="xml-stripblanks" alias="ide-environment-editor-row.ui">buildui/ide-environment-editor-row.ui</file>
   </gresource>
+
+  <gresource prefix="/org/gnome/builder/plugins/debugger">
+    <file alias="debugger.plugin">debugger/debugger.plugin</file>
+  </gresource>
+
 </gresources>
