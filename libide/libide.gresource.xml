@@ -32,6 +32,7 @@
     <file compressed="true" alias="Arc-shared.css">../data/themes/Arc-shared.css</file>
 
     <file compressed="true" alias="shared.css">../data/themes/shared.css</file>
+    <file compressed="true" alias="shared/shared-debugger.css">../data/themes/shared/shared-debugger.css</file>
     <file compressed="true" alias="shared/shared-editor.css">../data/themes/shared/shared-editor.css</file>
     <file compressed="true" alias="shared/shared-layout.css">../data/themes/shared/shared-layout.css</file>
     <file compressed="true" alias="shared/shared-omnibar.css">../data/themes/shared/shared-omnibar.css</file>
@@ -85,6 +86,10 @@
     <file alias="buildconfig.plugin">buildconfig/buildconfig.plugin</file>
   </gresource>
 
+  <gresource prefix="/org/gnome/builder/plugins/debugger">
+    <file alias="debugger.plugin">debugger/debugger.plugin</file>
+  </gresource>
+
   <gresource prefix="/org/gnome/builder/plugins/editor">
     <file alias="editor.plugin">editor/editor.plugin</file>
   </gresource>
@@ -105,10 +110,6 @@
     <file compressed="true" preprocess="xml-stripblanks" alias="ide-build-panel.ui">buildui/ide-build-panel.ui</file>
     <file compressed="true" preprocess="xml-stripblanks" alias="ide-build-perspective.ui">buildui/ide-build-perspective.ui</file>
     <file compressed="true" preprocess="xml-stripblanks" alias="ide-environment-editor-row.ui">buildui/ide-environment-editor-row.ui</file>
-  </gresource>
-
-  <gresource prefix="/org/gnome/builder/plugins/debugger">
-    <file alias="debugger.plugin">debugger/debugger.plugin</file>
   </gresource>
 
 </gresources>

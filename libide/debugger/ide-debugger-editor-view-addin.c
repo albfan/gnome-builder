@@ -32,9 +32,10 @@ struct _IdeDebuggerEditorViewAddin
 
 static void
 ide_debugger_editor_view_addin_load_source_view (IdeEditorViewAddin *addin,
-                                                 IdeSourceView      *source_view)
+                                                 IdeEditorView      *view)
 {
   IdeDebuggerEditorViewAddin *self = (IdeDebuggerEditorViewAddin *)addin;
+  IdeSourceView *source_view;
   g_autoptr(IdeDebuggerBreakpoints) breakpoints = NULL;
   GtkSourceGutterRenderer *renderer;
   GtkSourceGutter *gutter;
@@ -46,9 +47,10 @@ ide_debugger_editor_view_addin_load_source_view (IdeEditorViewAddin *addin,
   IDE_ENTRY;
 
   g_assert (IDE_IS_DEBUGGER_EDITOR_VIEW_ADDIN (addin));
-  g_assert (IDE_IS_EDITOR_VIEW (source_view));
+  g_assert (IDE_IS_EDITOR_VIEW (view));
 
-  context = ide_widget_get_context (GTK_WIDGET (source_view));
+  context = ide_widget_get_context (GTK_WIDGET (view));
+  source_view = ide_editor_view_get_view (view);
   buffer = IDE_BUFFER (gtk_text_view_get_buffer (GTK_TEXT_VIEW (source_view)));
   file = ide_buffer_get_file (buffer);
   gfile = ide_file_get_file (file);
@@ -74,16 +76,18 @@ ide_debugger_editor_view_addin_load_source_view (IdeEditorViewAddin *addin,
 
 static void
 ide_debugger_editor_view_addin_unload_source_view (IdeEditorViewAddin *addin,
-                                                   IdeSourceView      *source_view)
+                                                   IdeEditorView      *view)
 {
   IdeDebuggerEditorViewAddin *self = (IdeDebuggerEditorViewAddin *)addin;
+  IdeSourceView *source_view;
   GtkSourceGutter *gutter;
 
   IDE_ENTRY;
 
   g_assert (IDE_IS_DEBUGGER_EDITOR_VIEW_ADDIN (addin));
-  g_assert (IDE_IS_SOURCE_VIEW (source_view));
+  g_assert (IDE_IS_EDITOR_VIEW (view));
 
+  source_view = ide_editor_view_get_view (view);
   gutter = gtk_source_view_get_gutter (GTK_SOURCE_VIEW (source_view), GTK_TEXT_WINDOW_LEFT);
 
   for (guint i = self->renderers->len; i > 0; i--)

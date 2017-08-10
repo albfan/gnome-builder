@@ -51,6 +51,15 @@
         <attribute name="target">editor</attribute>
         <attribute name="verb-icon-name">builder-editor-symbolic</attribute>
       </item>
+      <item>
+        <attribute name="accel">&lt;alt&gt;2</attribute>
+        <attribute name="action">win.perspective</attribute>
+        <attribute name="id">perspective-menu-debugger</attribute>
+        <attribute name="label" translatable="yes">Debugger</attribute>
+        <attribute name="role">normal</attribute>
+        <attribute name="target">debugger</attribute>
+        <attribute name="verb-icon-name">builder-debugger-symbolic</attribute>
+      </item>
     </section>
     <section id="perspectives-menu-prefs-section">
       <item>
@@ -331,6 +340,15 @@
         <attribute name="label" translatable="yes">Run</attribute>
         <attribute name="verb-icon-name">media-playback-start-symbolic</attribute>
         <attribute name="accel">&lt;Control&gt;F5</attribute>
+      </item>
+      <item>
+        <attribute name="id">debugger-run-handler</attribute>
+        <attribute name="after">default-run-handler</attribute>
+        <attribute name="action">run-manager.run-with-handler</attribute>
+        <attribute name="target">debugger</attribute>
+        <attribute name="label" translatable="yes">Run with Debugger</attribute>
+        <attribute name="verb-icon-name">builder-debugger-symbolic</attribute>
+        <attribute name="accel">F5</attribute>
       </item>
     </section>
   </menu>

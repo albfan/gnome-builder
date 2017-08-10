@@ -49,12 +49,6 @@ libide_enums = gnome.mkenums('ide-enums',
   install_dir: libide_header_dir,
 )
 
-debugger_resources = gnome.compile_resources('debugger-resources',
-  join_paths(meson.source_root(), 'libide/debugger/debugger.gresource.xml'),
-  source_dir: join_paths(meson.source_root(), 'libide/debugger'),
-  c_name: 'debugger',
-)
-
 libide_public_headers = [
   'ide-context.h',
   'ide-global.h',
@@ -475,7 +469,6 @@ libide_generated_headers = [
   libide_build_ident_h,
   libide_resources[1],
   libide_icons_resources[1],
-  debugger_resources[1],
   libide_enums[1],
   libide_debug_h,
   libide_version_h,
