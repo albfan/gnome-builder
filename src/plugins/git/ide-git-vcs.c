@@ -502,6 +502,51 @@ ide_git_vcs_is_ignored (IdeVcs  *vcs,
   return ret;
 }
 
+static gboolean
+ide_git_vcs_is_untouched (IdeVcs  *vcs,
+                          GFile   *file,
+                          GError **error)
+{
+  g_autofree gchar *name = NULL;
+  IdeGitVcs *self = (IdeGitVcs *)vcs;
+  gboolean ret = FALSE;
+  GgitStatusFlags status_flags;
+
+  g_assert (IDE_IS_GIT_VCS (self));
+  g_assert (G_IS_FILE (file));
+
+  if (g_file_test(g_file_get_path(file), G_FILE_TEST_IS_DIR))
+    {
+      //Suppose dir as touched files
+      return ret;
+    }
+  /* Note: this function is required to be thread-safe so that workers
+   *       can check if files are ignored from a thread without
+   *       round-tripping to the main thread.
+   */
+
+  /* self->working_directory is not changed after creation, so safe
+   * to access it from a thread.
+   */
+  name = g_file_get_relative_path (self->working_directory, file);
+  if (g_strcmp0 (name, ".git") == 0)
+    return TRUE;
+
+  /*
+   * If we have a valid name to work with, we want to query the
+   * repository. But this could be called from a thread, so ensure
+   * we are the only thread accessing self->repository right now.
+   */
+  if (name != NULL)
+    {
+      g_mutex_lock (&self->repository_mutex);
+      status_flags = ggit_repository_file_status (self->repository, file, error);
+      ret = status_flags == GGIT_STATUS_CURRENT || status_flags == GGIT_STATUS_IGNORED;
+      g_mutex_unlock (&self->repository_mutex);
+    }
+
+  return ret;
+}
 static gchar *
 ide_git_vcs_get_branch_name (IdeVcs *vcs)
 {
@@ -784,6 +829,7 @@ ide_git_vcs_init_iface (IdeVcsInterface *iface)
   iface->get_working_directory = ide_git_vcs_get_working_directory;
   iface->get_buffer_change_monitor = ide_git_vcs_get_buffer_change_monitor;
   iface->is_ignored = ide_git_vcs_is_ignored;
+  iface->is_untouched = ide_git_vcs_is_untouched;
   iface->get_config = ide_git_vcs_get_config;
   iface->get_branch_name = ide_git_vcs_get_branch_name;
   iface->list_status_async = ide_git_vcs_list_status_async;

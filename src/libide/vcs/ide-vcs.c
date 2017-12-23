@@ -187,6 +187,44 @@ ide_vcs_is_ignored (IdeVcs  *self,
 }
 
 /**
+ * ide_vcs_is_untouched:
+ * @self: An #IdeVcs
+ * @file: (nullable): a #GFile
+ * @error: A location for a #GError, or %NULL
+ *
+ * This function will check if @file is untouched by
+ * the underlying Version Control System.
+ *
+ * For convenience, this function will return %TRUE if @file is %NULL.
+ *
+ * Returns: %TRUE if the path is untouched.
+ *
+ * Thread safety: This function is safe to call from a thread as
+ *   #IdeVcs implementations are required to ensure this function
+ *   is thread-safe.
+ *
+ * Since: 3.28
+ */
+gboolean
+ide_vcs_is_untouched (IdeVcs  *self,
+                      GFile   *file,
+                      GError **error)
+{
+  gboolean ret = FALSE;
+
+  g_return_val_if_fail (IDE_IS_VCS (self), FALSE);
+  g_return_val_if_fail (!file || G_IS_FILE (file), FALSE);
+
+  if (file == NULL)
+    return TRUE;
+
+  if (!ret && IDE_VCS_GET_IFACE (self)->is_untouched)
+    ret = IDE_VCS_GET_IFACE (self)->is_untouched (self, file, error);
+
+  return ret;
+}
+
+/**
  * ide_vcs_path_is_ignored:
  * @self: An #IdeVcs
  * @path: (nullable): The path to check

@@ -26,19 +26,22 @@ G_BEGIN_DECLS
 
 G_DECLARE_FINAL_TYPE (GbProjectTree, gb_project_tree, GB, PROJECT_TREE, DzlTree)
 
-GtkWidget  *gb_project_tree_new                    (void);
-void        gb_project_tree_set_context            (GbProjectTree *self,
-                                                    IdeContext    *context);
-IdeContext *gb_project_tree_get_context            (GbProjectTree *self);
-gboolean    gb_project_tree_get_show_ignored_files (GbProjectTree *self);
-void        gb_project_tree_set_show_ignored_files (GbProjectTree *self,
-                                                    gboolean       show_ignored_files);
-void        gb_project_tree_reveal                 (GbProjectTree *self,
-                                                    GFile         *file,
-                                                    gboolean       focus_tree_view,
-                                                    gboolean       expand_folder);
+GtkWidget  *gb_project_tree_new                      (void);
+void        gb_project_tree_set_context              (GbProjectTree *self,
+                                                      IdeContext    *context);
+IdeContext *gb_project_tree_get_context              (GbProjectTree *self);
+gboolean    gb_project_tree_get_show_ignored_files   (GbProjectTree *self);
+void        gb_project_tree_set_show_ignored_files   (GbProjectTree *self,
+                                                      gboolean       show_ignored_files);
+gboolean    gb_project_tree_get_hide_untouched_files (GbProjectTree *self);
+void        gb_project_tree_set_hide_untouched_files (GbProjectTree *self,
+                                                      gboolean       show_ignored_files);
+void        gb_project_tree_reveal                   (GbProjectTree *self,
+                                                      GFile         *file,
+                                                      gboolean       focus_tree_view,
+                                                      gboolean       expand_folder);
 DzlTreeNode *
-            gb_project_tree_find_file_node         (GbProjectTree *self,
-                                                    GFile         *file);
+            gb_project_tree_find_file_node           (GbProjectTree *self,
+                                                      GFile         *file);
 
 G_END_DECLS

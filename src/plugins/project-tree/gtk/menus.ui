@@ -89,6 +89,10 @@
             <attribute name="action">project-tree.show-ignored-files</attribute>
           </item>
           <item>
+            <attribute name="label" translatable="yes">Hide Untouched Files</attribute>
+            <attribute name="action">project-tree.hide-untouched-files</attribute>
+          </item>
+          <item>
             <attribute name="label" translatable="yes">Sort Directories First</attribute>
             <attribute name="action">project-tree.sort-directories-first</attribute>
           </item>

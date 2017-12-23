@@ -10,6 +10,11 @@
       <summary>Show Ignored Files</summary>
       <description>If enabled, the project tree will display files that are ignored by the VCS.</description>
     </key>
+    <key name="hide-untouched-files" type="b">
+      <default>false</default>
+      <summary>Hide Untouched Files</summary>
+      <description>If enabled, the project tree will hide files that are untouched by the VCS.</description>
+    </key>
     <key name="sort-directories-first" type="b">
       <default>true</default>
       <summary>Sort Directories First</summary>

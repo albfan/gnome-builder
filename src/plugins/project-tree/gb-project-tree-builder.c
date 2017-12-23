@@ -364,6 +364,7 @@ build_file (GbProjectTreeBuilder *self,
   DzlTree *tree;
   gint count = 0;
   gboolean show_ignored_files;
+  gboolean hide_untouched_files;
 
   g_return_if_fail (GB_IS_PROJECT_TREE_BUILDER (self));
   g_return_if_fail (DZL_IS_TREE_NODE (node));
@@ -372,6 +373,7 @@ build_file (GbProjectTreeBuilder *self,
 
   tree = dzl_tree_builder_get_tree (DZL_TREE_BUILDER (self));
   show_ignored_files = gb_project_tree_get_show_ignored_files (GB_PROJECT_TREE (tree));
+  hide_untouched_files = gb_project_tree_get_hide_untouched_files (GB_PROJECT_TREE (tree));
 
   vcs = get_vcs (node);
 
@@ -406,6 +408,7 @@ build_file (GbProjectTreeBuilder *self,
       const gchar *icon_name;
       const gchar *expanded = NULL;
       gboolean ignored;
+      gboolean untouched;
       gboolean is_dir;
 
       name = g_file_info_get_name (item_file_info);
@@ -413,6 +416,10 @@ build_file (GbProjectTreeBuilder *self,
 
       ignored = ide_vcs_is_ignored (vcs, item_file, NULL);
       if (ignored && !show_ignored_files)
+        continue;
+
+      untouched = ide_vcs_is_untouched (vcs, item_file, NULL);
+      if (untouched && hide_untouched_files)
         continue;
 
       item = gb_project_file_new (item_file, item_file_info);

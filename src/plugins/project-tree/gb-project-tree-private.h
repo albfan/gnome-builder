@@ -30,6 +30,7 @@ struct _GbProjectTree
 
   guint      expanded_in_new : 1;
   guint      show_ignored_files : 1;
+  guint      hide_untouched_files : 1;
 };
 
 void      _gb_project_tree_init_shortcuts       (GbProjectTree *self);

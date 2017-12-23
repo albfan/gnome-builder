@@ -33,6 +33,7 @@ G_DEFINE_TYPE (GbProjectTree, gb_project_tree, DZL_TYPE_TREE)
 enum {
   PROP_0,
   PROP_SHOW_IGNORED_FILES,
+  PROP_HIDE_UNTOUCHED_FILES,
   LAST_PROP
 };
 
@@ -268,6 +269,10 @@ gb_project_tree_get_property (GObject    *object,
     case PROP_SHOW_IGNORED_FILES:
       g_value_set_boolean (value, gb_project_tree_get_show_ignored_files (self));
       break;
+    case PROP_HIDE_UNTOUCHED_FILES:
+      g_value_set_boolean (value, gb_project_tree_get_hide_untouched_files (self));
+      break;
+
 
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -286,6 +291,9 @@ gb_project_tree_set_property (GObject      *object,
     {
     case PROP_SHOW_IGNORED_FILES:
       gb_project_tree_set_show_ignored_files (self, g_value_get_boolean (value));
+      break;
+    case PROP_HIDE_UNTOUCHED_FILES:
+      gb_project_tree_set_hide_untouched_files (self, g_value_get_boolean (value));
       break;
 
     default:
@@ -306,6 +314,12 @@ gb_project_tree_class_init (GbProjectTreeClass *klass)
     g_param_spec_boolean ("show-ignored-files",
                           "Show Ignored Files",
                           "If files ignored by the VCS should be displayed.",
+                          FALSE,
+                          (G_PARAM_READWRITE | G_PARAM_EXPLICIT_NOTIFY | G_PARAM_STATIC_STRINGS));
+  properties [PROP_HIDE_UNTOUCHED_FILES] =
+    g_param_spec_boolean ("hide-untouched-files",
+                          "Hide Untouched Files",
+                          "If files untouched by the VCS should be hidden.",
                           FALSE,
                           (G_PARAM_READWRITE | G_PARAM_EXPLICIT_NOTIFY | G_PARAM_STATIC_STRINGS));
 
@@ -330,6 +344,9 @@ gb_project_tree_init (GbProjectTree *self)
   g_settings_bind (self->settings, "show-icons", self, "show-icons",
                    G_SETTINGS_BIND_DEFAULT);
   g_settings_bind (self->settings, "show-ignored-files", self, "show-ignored-files",
+                   G_SETTINGS_BIND_DEFAULT);
+
+  g_settings_bind (self->settings, "hide-untouched-files", self, "hide-untouched-files",
                    G_SETTINGS_BIND_DEFAULT);
 
   builder = gb_project_tree_builder_new ();
@@ -379,6 +396,30 @@ gb_project_tree_set_show_ignored_files (GbProjectTree *self,
     {
       self->show_ignored_files = show_ignored_files;
       g_object_notify_by_pspec (G_OBJECT (self), properties [PROP_SHOW_IGNORED_FILES]);
+      dzl_tree_rebuild (DZL_TREE (self));
+    }
+}
+
+gboolean
+gb_project_tree_get_hide_untouched_files (GbProjectTree *self)
+{
+  g_return_val_if_fail (GB_IS_PROJECT_TREE (self), FALSE);
+
+  return self->hide_untouched_files;
+}
+
+void
+gb_project_tree_set_hide_untouched_files (GbProjectTree *self,
+                                          gboolean       hide_untouched_files)
+{
+  g_return_if_fail (GB_IS_PROJECT_TREE (self));
+
+  hide_untouched_files = !!hide_untouched_files;
+
+  if (hide_untouched_files != self->hide_untouched_files)
+    {
+      self->hide_untouched_files = hide_untouched_files;
+      g_object_notify_by_pspec (G_OBJECT (self), properties [PROP_HIDE_UNTOUCHED_FILES]);
       dzl_tree_rebuild (DZL_TREE (self));
     }
 }

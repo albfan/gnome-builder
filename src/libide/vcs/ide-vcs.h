@@ -41,6 +41,9 @@ struct _IdeVcsInterface
   gboolean                (*is_ignored)                (IdeVcs               *self,
                                                         GFile                *file,
                                                         GError              **error);
+  gboolean                (*is_untouched)              (IdeVcs               *self,
+                                                        GFile                *file,
+                                                        GError              **error);
   gint                    (*get_priority)              (IdeVcs               *self);
   void                    (*changed)                   (IdeVcs               *self);
   IdeVcsConfig           *(*get_config)                (IdeVcs               *self);
@@ -75,6 +78,10 @@ IdeVcs                 *ide_vcs_new_finish                (GAsyncResult         
                                                            GError              **error);
 IDE_AVAILABLE_IN_ALL
 gboolean                ide_vcs_is_ignored                (IdeVcs               *self,
+                                                           GFile                *file,
+                                                           GError              **error);
+IDE_AVAILABLE_IN_3_28
+gboolean                ide_vcs_is_untouched              (IdeVcs               *self,
                                                            GFile                *file,
                                                            GError              **error);
 IDE_AVAILABLE_IN_3_28

@@ -852,6 +852,10 @@ gb_project_tree_actions_init (GbProjectTree *self)
   g_action_map_add_action (G_ACTION_MAP (actions), action);
   g_clear_object (&action);
 
+  action = g_settings_create_action (tree_settings, "hide-untouched-files");
+  g_action_map_add_action (G_ACTION_MAP (actions), action);
+  g_clear_object (&action);
+
   action = g_settings_create_action (tree_settings, "show-icons");
   g_action_map_add_action (G_ACTION_MAP (actions), action);
   g_clear_object (&action);
